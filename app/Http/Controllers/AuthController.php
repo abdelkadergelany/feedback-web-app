@@ -10,6 +10,11 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+
+     public function showLoginForm()
+    {
+        return Inertia::render('Auth/Login');
+    }
     public function register(Request $request)
     {
         $request->validate([
