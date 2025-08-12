@@ -9,17 +9,17 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-       public function up()
-{
-    Schema::create('feedback', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-        $table->string('title');
-        $table->text('description');
-        $table->string('category');
-        $table->timestamps();
-    });
-}
+ public function up()
+    {
+        Schema::create('feedback', function (Blueprint $table) {
+            $table->id();
+            $table->string('title');
+            $table->text('description');
+            $table->foreignId('category_id')->constrained();
+            $table->foreignId('user_id')->constrained();
+            $table->timestamps();
+        });
+    }
 
     /**
      * Reverse the migrations.
