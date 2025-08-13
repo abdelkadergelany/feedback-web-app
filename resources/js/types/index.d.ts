@@ -41,3 +41,47 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+// Extended types for your application
+interface Feedback {
+    id: number;
+    title: string;
+    description: string;
+    category_id: number;
+    user_id: number;
+    created_at: string;
+    updated_at: string;
+}
+
+interface Category {
+    id: number;
+    name: string;
+    created_at: string;
+    updated_at: string;
+}
+
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    email_verified_at: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+interface Paginate {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+}
+
+interface FeedbackWithRelations extends Feedback {
+    category: Category;
+    user: User;
+    comments?: Comment[];
+}
+
+interface PaginatedFeedbacks extends Paginate {
+    data: FeedbackWithRelations[];
+}
