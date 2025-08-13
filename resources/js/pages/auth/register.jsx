@@ -1,7 +1,8 @@
 import React from 'react';
 import { Head, Link, useForm } from "@inertiajs/react";
+import AppLayout from '@/Layouts/AppLayout';
 
-const Register = () => {
+const Register = ({auth}) => {
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         email: '',
@@ -15,7 +16,8 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+       <AppLayout auth={auth} title="Register">
+       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
             <Head title="Register" />
             
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -253,6 +255,7 @@ const Register = () => {
                 </div>
             </div>
         </div>
+        </AppLayout>
     );
 };
 

@@ -59,10 +59,7 @@ const Home = ({ auth }) => {
                 <div className="relative pt-16 pb-20 px-4 sm:px-6 lg:pt-24 lg:pb-28 lg:px-8">
                     <div className="relative max-w-7xl mx-auto">
                         <div className="text-center">
-                            {/* <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                                <span className="block">Welcome to</span>
-                                <span className="block text-indigo-600">Product Feedback Tool</span>
-                            </h1> */}
+                            
                             <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
                                 {auth.user ? (
                                     "Submit and view product feedback to help improve our products."

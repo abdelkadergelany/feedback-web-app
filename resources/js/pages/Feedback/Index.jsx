@@ -37,7 +37,7 @@ const Index = () => {
         <div className="container mt-5">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2>Product Feedback</h2>
-                {/* <Link to="/feedback/create" className="btn btn-primary">Add Feedback</Link> */}
+                <Link to="/feedback/create" className="btn btn-primary">Add Feedback</Link>
             </div>
             
             <div className="list-group">
