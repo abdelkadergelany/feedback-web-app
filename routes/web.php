@@ -11,6 +11,13 @@ Route::get('/feedback', function () {
         return Inertia::render('Feedback/index');
     })->name('feedback.index');
 
+
+
+
+Route::get('/feedback/{id}', function ($id) {
+    return Inertia::render('Feedback/feedbackDetail', ['id' => $id]);
+})->name('feedback.detail');
+
 // Route::middleware(['auth', 'verified'])->group(function () {
 //     Route::get('dashboard', function () {
 //         return Inertia::render('dashboard');
