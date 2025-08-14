@@ -7,119 +7,76 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
-    /**
-     * Register a new user
-     */
     public function register(Request $request)
     {
-        try {
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
-                'password' => 'required|string|min:8|confirmed',
-            ]);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
 
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-            ]);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
 
-            return response()->json([
-                'user' => $user,
-                'token' => $user->createToken('auth_token')->plainTextToken
-            ], 201);
+        $token = $user->createToken('auth_token')->plainTextToken;
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Registration failed',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'user' => $user
+        ], 201);
     }
 
-    /**
-     * Login user and create token
-     */
-    public function login(Request $request)
-    {
-        try {
-            $request->validate([
-                'email' => 'required|email',
-                'password' => 'required',
-            ]);
+   public function login(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required|string',
+    ]);
 
-            if (!Auth::attempt($request->only('email', 'password'))) {
-                throw ValidationException::withMessages([
-                    'email' => ['The provided credentials are incorrect.'],
-                ]);
-            }
-
-            $user = User::where('email', $request->email)->firstOrFail();
-            
-            // Revoke all previous tokens (optional security measure)
-            $user->tokens()->delete();
-            
-            $token = $user->createToken('auth_token')->plainTextToken;
-
-            return response()->json([
-                'token' => $token,
-                'token_type' => 'Bearer',
-                'user' => $user
-            ]);
-
-        } catch (ValidationException $e) {
-            return response()->json([
-                'message' => 'Validation error',
-                'errors' => $e->errors()
-            ], 422);
-            
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Login failed',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+    // Attempt to authenticate the user
+    if (!Auth::attempt($request->only('email', 'password'))) {
+        return response()->json([
+            'message' => 'Invalid credentials',
+            'errors' => [
+                'email' => ['The provided credentials are incorrect.']
+            ]
+        ], 401);
     }
 
-    /**
-     * Logout user (revoke token)
-     */
+    $user = User::where('email', $request->email)->firstOrFail();
+    
+    // Revoke existing tokens
+    $user->tokens()->delete();
+    
+    // Create new token with abilities
+    $token = $user->createToken('auth_token', ['*'])->plainTextToken;
+
+    return response()->json([
+        'access_token' => $token,
+        'token_type' => 'Bearer',
+        'user' => $user->only('id', 'name', 'email')
+    ]);
+}
+
     public function logout(Request $request)
     {
-        try {
-            $request->user()->currentAccessToken()->delete();
+        $request->user()->currentAccessToken()->delete();
 
-            return response()->json([
-                'message' => 'Logged out successfully'
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Logout failed',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json(['message' => 'Logged out successfully']);
     }
 
-    /**
-     * Get authenticated user details
-     */
     public function user(Request $request)
     {
-        try {
-            return response()->json([
-                'user' => $request->user()
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to fetch user data',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        return response()->json([
+            'user' => $request->user()->load('tokens')
+        ]);
     }
 }

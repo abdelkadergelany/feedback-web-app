@@ -1,36 +1,68 @@
 import React, { useState } from 'react';
 import { router } from '@inertiajs/react';
-import axios from 'axios';
+import AppLayout from '@/Layouts/AppLayout';
+import api from '../../axios';
 import { Head } from '@inertiajs/react';
 
-const Login = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+const Login = ({auth}) => {
+    const [formData, setFormData] = useState({
+        email: '',
+        password: ''
+    });
     const [errors, setErrors] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+
+    const handleChange = (e) => {
+        setFormData(prev => ({
+            ...prev,
+            [e.target.name]: e.target.value
+        }));
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
+        setErrors({});
         
         try {
-            const response = await axios.post('/api/login', { email, password });
-            localStorage.setItem('token', response.data.token);
-            axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-            router.visit('/feedback');
+            // 1. First get CSRF cookie
+            await api.get('/sanctum/csrf-cookie');
+
+            
+            
+            // 2. Then make login request
+            const response = await api.post('/login', formData);
+            
+            // 3. Store token and user data
+            localStorage.setItem('auth_token', response.data.access_token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+            
+            // 4. Set default auth header
+            api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`;
+            
+            // 5. Redirect
+            router.visit(route('feedback.index'));
+            //router.visit('/feedback');
+            
+
         } catch (error) {
-            if (error.response && error.response.status === 422) {
+            if (error.response?.status === 422) {
                 setErrors(error.response.data.errors || {});
             } else {
+                setErrors({ 
+                    general: [error.response?.data?.message || 'Login failed'] 
+                });
                 console.error('Login error:', error);
-                setErrors({ general: ['Invalid credentials. Please try again.'] });
             }
         } finally {
             setIsLoading(false);
         }
     };
 
+
     return (
+
+        <AppLayout auth={auth} title="Login">
         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
             <Head title="Login" />
             
@@ -80,8 +112,10 @@ const Login = () => {
                                     type="email"
                                     autoComplete="email"
                                     required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                            
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    
                                     className={`appearance-none block w-full px-3 py-2 border ${errors.email ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
                                 />
                                 {errors.email && (
@@ -101,8 +135,10 @@ const Login = () => {
                                     type="password"
                                     autoComplete="current-password"
                                     required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    
+                    
                                     className={`appearance-none block w-full px-3 py-2 border ${errors.password ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
                                 />
                                 {errors.password && (
@@ -191,6 +227,7 @@ const Login = () => {
                 </div>
             </div>
         </div>
+        </AppLayout>
     );
 };
 
