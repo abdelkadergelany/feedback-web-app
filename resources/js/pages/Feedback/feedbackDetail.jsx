@@ -13,6 +13,7 @@ const FeedbackDetail = ({ feedback: initialFeedback, id }) => {
     const [commentErrors, setCommentErrors] = useState({});
     const [isSubmittingComment, setIsSubmittingComment] = useState(false);
     const { auth } = usePage().props;
+    const logedinUserName = auth?.user?.name;
 
     useEffect(() => {
         if (!initialFeedback) {
@@ -167,16 +168,26 @@ const FeedbackDetail = ({ feedback: initialFeedback, id }) => {
                                     <div className="flex items-start">
                                         <div className="flex-shrink-0">
                                             <div className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-indigo-100">
-                                                <span className="text-indigo-600 font-medium">
+                                                {/* <span className="text-indigo-600 font-medium">
                                                     {comment.user.name.charAt(0).toUpperCase()}
-                                                </span>
+                                                </span> */}
+
+                                                <span className="text-indigo-600 font-medium">
+    {comment.user && comment.user.name
+        ? comment.user.name.charAt(0).toUpperCase()
+        : "?"}
+</span>
                                             </div>
                                         </div>
                                         <div className="ml-4 flex-1">
                                             <div className="flex items-center justify-between">
-                                                <p className="text-sm font-medium text-gray-900">
+                                                {/* <p className="text-sm font-medium text-gray-900">
                                                     {comment.user.name}
-                                                </p>
+                                                </p> */}
+
+                                                <p className="text-sm font-medium text-gray-900">
+    {comment.user && comment.user.name ? comment.user.name : "Unknown"}
+</p>
                                                 <p className="text-sm text-gray-500">
                                                     {new Date(comment.created_at).toLocaleDateString('en-US', {
                                                         month: 'short',
@@ -263,7 +274,7 @@ const FeedbackDetail = ({ feedback: initialFeedback, id }) => {
                         </form>
                     </div>
                 </div>
-                
+
             </div>
         </div>
     );

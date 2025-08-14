@@ -12,11 +12,15 @@ Route::get('/feedback', function () {
     })->name('feedback.index');
 
 
-
+Route::get('/feedback/createform', function () {
+    return Inertia::render('Feedback/feedbackForm');
+})->name('feedback.createform');
 
 Route::get('/feedback/{id}', function ($id) {
     return Inertia::render('Feedback/feedbackDetail', ['id' => $id]);
 })->name('feedback.detail');
+
+
 
 // Route::middleware(['auth', 'verified'])->group(function () {
 //     Route::get('dashboard', function () {
