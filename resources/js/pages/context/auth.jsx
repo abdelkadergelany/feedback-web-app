@@ -12,10 +12,11 @@ export const AuthProvider = ({ children }) => {
             .then(res => setUser(res.data.user))
             .catch(() => setUser(null))
             .finally(() => setLoading(false));
+            console.log('User data fetched:', user);
     }, []);
 
     return (
-        <AuthContext.Provider value={{ user, loading }}>
+        <AuthContext.Provider value={{ user,setUser, loading }}>
             {children}
         </AuthContext.Provider>
     );

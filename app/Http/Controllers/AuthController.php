@@ -12,7 +12,8 @@ use Laravel\Sanctum\PersonalAccessToken;
 class AuthController extends Controller
 {
     public function register(Request $request)
-    {
+{
+    try {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -25,14 +26,23 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
-
         return response()->json([
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'user' => $user
+            'message' => 'Registration successful',
+            'redirect' => '/login'
         ], 201);
+
+    } catch (ValidationException $e) {
+        return response()->json([
+            'message' => 'Validation failed',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Registration failed',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 
    public function login(Request $request)
 {
@@ -81,67 +91,3 @@ class AuthController extends Controller
     }
 }
 
-// class AuthController extends Controller
-// {
-//     public function register(Request $request)
-//     {
-//         $request->validate([
-//             'name' => 'required|string|max:255',
-//             'email' => 'required|string|email|max:255|unique:users',
-//             'password' => 'required|string|min:8|confirmed',
-//         ]);
-
-//         $user = User::create([
-//             'name' => $request->name,
-//             'email' => $request->email,
-//             'password' => Hash::make($request->password),
-//         ]);
-
-//         $token = $user->createToken('auth_token')->plainTextToken;
-
-//         return response()->json([
-//             'access_token' => $token,
-//             'token_type' => 'Bearer',
-//             'user' => $user->only('id', 'name', 'email')
-//         ], 201);
-//     }
-
-//     public function login(Request $request)
-//     {
-//         $request->validate([
-//             'email' => 'required|email',
-//             'password' => 'required|string',
-//         ]);
-
-//         if (!Auth::attempt($request->only('email', 'password'))) {
-//             return response()->json([
-//                 'message' => 'Invalid credentials',
-//                 'errors' => [
-//                     'email' => ['The provided credentials are incorrect.']
-//                 ]
-//             ], 401);
-//         }
-
-//         $user = User::where('email', $request->email)->firstOrFail();
-//         $token = $user->createToken('auth_token')->plainTextToken;
-
-//         return response()->json([
-//             'access_token' => $token,
-//             'token_type' => 'Bearer',
-//             'user' => $user->only('id', 'name', 'email')
-//         ]);
-//     }
-
-//     public function logout(Request $request)
-//     {
-//         $request->user()->currentAccessToken()->delete();
-//         return response()->json(['message' => 'Logged out successfully']);
-//     }
-
-//     public function user(Request $request)
-//     {
-//         return response()->json([
-//             'user' => $request->user()
-//         ]);
-//     }
-// }

@@ -10,7 +10,7 @@ const AppLayout = ({ children, auth, title }) => {
         <div className="min-h-screen bg-gray-50 flex flex-col">
             <Head title={title || "Product Feedback Tool"} />
             
-            {/* Use the styled Navbar component */}
+            
             <Navbar auth={auth} />
             
             {/* Main content area */}

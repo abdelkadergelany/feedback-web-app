@@ -1,18 +1,57 @@
-import React from 'react';
-import { Head, Link, useForm } from "@inertiajs/react";
+import React, { useState } from 'react';
+import { Head, Link, router } from "@inertiajs/react";
 import AppLayout from '@/Layouts/AppLayout';
+import api from '../../axios';
 
 const Register = ({auth}) => {
-    const { data, setData, post, processing, errors } = useForm({
+    const [formData, setFormData] = useState({
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
     });
+    const [errors, setErrors] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
 
-    const handleSubmit = (e) => {
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        post('/register');
+        setIsSubmitting(true);
+        setErrors({});
+        setSuccessMessage('');
+
+        try {
+            const response = await api.post('/register', formData);
+            
+            // Show success message
+            setSuccessMessage('Registration successful! Redirecting to login...');
+            
+            // Redirect to login after 2 seconds
+            setTimeout(() => {
+                router.visit('/login');
+            }, 2000);
+            
+        } catch (error) {
+            if (error.response?.status === 422) {
+                // Validation errors
+                setErrors(error.response.data.errors || {});
+            } else {
+                // General error
+                setErrors({
+                    general: [error.response?.data?.message || 'Registration failed. Please try again.']
+                });
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -37,146 +76,151 @@ const Register = ({auth}) => {
 
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="bg-white py-8 px-4 shadow-lg sm:rounded-lg sm:px-10 transition-all duration-300 hover:shadow-xl">
+                    {/* Success Message */}
+                    {successMessage && (
+                        <div className="mb-4 p-4 bg-green-50 border-l-4 border-green-500">
+                            <div className="flex">
+                                <div className="flex-shrink-0">
+                                    <svg className="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div className="ml-3">
+                                    <p className="text-sm text-green-700">
+                                        {successMessage}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* General Error Message */}
+                    {errors.general && (
+                        <div className="mb-4 p-4 bg-red-50 border-l-4 border-red-500">
+                            <div className="flex">
+                                <div className="flex-shrink-0">
+                                    <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div className="ml-3">
+                                    <p className="text-sm text-red-700">
+                                        {errors.general[0]}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <form className="space-y-6" onSubmit={handleSubmit}>
+                        {/* Name Field */}
                         <div>
-                            <label 
-                                htmlFor="name" 
-                                className="block text-sm font-medium text-gray-700"
-                            >
+                            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                                 Full Name
                             </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
+                            <div className="mt-1">
                                 <input
                                     id="name"
                                     name="name"
                                     type="text"
                                     autoComplete="name"
                                     required
-                                    value={data.name}
-                                    onChange={(e) => setData('name', e.target.value)}
-                                    className={`block w-full px-4 py-3 rounded-md border ${errors.name ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' : 'border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500'} focus:ring-2 focus:ring-opacity-50 transition-all`}
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    className={`block w-full px-4 py-3 rounded-md border ${
+                                        errors.name ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' 
+                                        : 'border-gray-300 placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500'
+                                    } shadow-sm focus:outline-none focus:ring-2 focus:ring-opacity-50`}
                                     placeholder="John Doe"
                                 />
                                 {errors.name && (
-                                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                        <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
+                                    <p className="mt-2 text-sm text-red-600">{errors.name[0]}</p>
                                 )}
                             </div>
-                            {errors.name && (
-                                <p className="mt-2 text-sm text-red-600">
-                                    {errors.name}
-                                </p>
-                            )}
                         </div>
 
+                        {/* Email Field */}
                         <div>
-                            <label 
-                                htmlFor="email" 
-                                className="block text-sm font-medium text-gray-700"
-                            >
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                                 Email address
                             </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
+                            <div className="mt-1">
                                 <input
                                     id="email"
                                     name="email"
                                     type="email"
                                     autoComplete="email"
                                     required
-                                    value={data.email}
-                                    onChange={(e) => setData('email', e.target.value)}
-                                    className={`block w-full px-4 py-3 rounded-md border ${errors.email ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' : 'border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500'} focus:ring-2 focus:ring-opacity-50 transition-all`}
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    className={`block w-full px-4 py-3 rounded-md border ${
+                                        errors.email ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' 
+                                        : 'border-gray-300 placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500'
+                                    } shadow-sm focus:outline-none focus:ring-2 focus:ring-opacity-50`}
                                     placeholder="you@example.com"
                                 />
                                 {errors.email && (
-                                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                        <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
+                                    <p className="mt-2 text-sm text-red-600">{errors.email[0]}</p>
                                 )}
                             </div>
-                            {errors.email && (
-                                <p className="mt-2 text-sm text-red-600">
-                                    {errors.email}
-                                </p>
-                            )}
                         </div>
 
+                        {/* Password Field */}
                         <div>
-                            <label 
-                                htmlFor="password" 
-                                className="block text-sm font-medium text-gray-700"
-                            >
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                                 Password
                             </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
+                            <div className="mt-1">
                                 <input
                                     id="password"
                                     name="password"
                                     type="password"
                                     autoComplete="new-password"
                                     required
-                                    value={data.password}
-                                    onChange={(e) => setData('password', e.target.value)}
-                                    className={`block w-full px-4 py-3 rounded-md border ${errors.password ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' : 'border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500'} focus:ring-2 focus:ring-opacity-50 transition-all`}
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    className={`block w-full px-4 py-3 rounded-md border ${
+                                        errors.password ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' 
+                                        : 'border-gray-300 placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500'
+                                    } shadow-sm focus:outline-none focus:ring-2 focus:ring-opacity-50`}
                                     placeholder="••••••••"
                                 />
                                 {errors.password && (
-                                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                        <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
+                                    <p className="mt-2 text-sm text-red-600">{errors.password[0]}</p>
                                 )}
-                            </div>
-                            {errors.password && (
-                                <p className="mt-2 text-sm text-red-600">
-                                    {errors.password}
+                                <p className="mt-2 text-xs text-gray-500">
+                                    Must be at least 8 characters
                                 </p>
-                            )}
-                            <p className="mt-2 text-xs text-gray-500">
-                                Must be at least 8 characters
-                            </p>
+                            </div>
                         </div>
 
+                        {/* Confirm Password Field */}
                         <div>
-                            <label 
-                                htmlFor="password_confirmation" 
-                                className="block text-sm font-medium text-gray-700"
-                            >
+                            <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700">
                                 Confirm Password
                             </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
+                            <div className="mt-1">
                                 <input
                                     id="password_confirmation"
                                     name="password_confirmation"
                                     type="password"
                                     autoComplete="new-password"
                                     required
-                                    value={data.password_confirmation}
-                                    onChange={(e) => setData('password_confirmation', e.target.value)}
-                                    className={`block w-full px-4 py-3 rounded-md border ${errors.password_confirmation ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500' : 'border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500'} focus:ring-2 focus:ring-opacity-50 transition-all`}
+                                    value={formData.password_confirmation}
+                                    onChange={handleChange}
+                                    className={`block w-full px-4 py-3 rounded-md border ${
+                                        errors.password_confirmation ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' 
+                                        : 'border-gray-300 placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500'
+                                    } shadow-sm focus:outline-none focus:ring-2 focus:ring-opacity-50`}
                                     placeholder="••••••••"
                                 />
                                 {errors.password_confirmation && (
-                                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                        <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
+                                    <p className="mt-2 text-sm text-red-600">{errors.password_confirmation[0]}</p>
                                 )}
                             </div>
-                            {errors.password_confirmation && (
-                                <p className="mt-2 text-sm text-red-600">
-                                    {errors.password_confirmation}
-                                </p>
-                            )}
                         </div>
 
+                        {/* Terms Checkbox */}
                         <div className="flex items-center">
                             <input
                                 id="terms"
@@ -197,13 +241,16 @@ const Register = ({auth}) => {
                             </label>
                         </div>
 
+                        {/* Submit Button */}
                         <div>
                             <button
                                 type="submit"
-                                disabled={processing}
-                                className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${processing ? 'opacity-75 cursor-not-allowed' : ''}`}
+                                disabled={isSubmitting}
+                                className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${
+                                    isSubmitting ? 'opacity-75 cursor-not-allowed' : ''
+                                }`}
                             >
-                                {processing ? (
+                                {isSubmitting ? (
                                     <>
                                         <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -216,6 +263,7 @@ const Register = ({auth}) => {
                         </div>
                     </form>
 
+                    {/* Social Login Options */}
                     <div className="mt-6">
                         <div className="relative">
                             <div className="absolute inset-0 flex items-center">
@@ -229,6 +277,7 @@ const Register = ({auth}) => {
                         </div>
 
                         <div className="mt-6 grid grid-cols-2 gap-3">
+                            {/* GitHub Button */}
                             <div>
                                 <a
                                     href="#"
@@ -240,6 +289,7 @@ const Register = ({auth}) => {
                                 </a>
                             </div>
 
+                            {/* Twitter Button */}
                             <div>
                                 <a
                                     href="#"

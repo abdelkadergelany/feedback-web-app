@@ -1,11 +1,37 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
 import { useAuth } from '../pages/context/auth'
+import api from '../axios';
+import { router } from '@inertiajs/react';
 
 const Navbar = ({ auth }) => {
 
-    const { user, loading } = useAuth();
+    const { user, setUser } = useAuth();
 
+    const handleLogout = async (e) => {
+        e.preventDefault();
+        
+        try {
+            // Call the logout API endpoint
+            await api.post('/logout');
+            
+            // Clear the auth token from localStorage
+            localStorage.removeItem('auth_token');
+            
+            // Redirect to login page
+            setUser(null);
+            router.visit('/login');
+            
+            // Force a full page reload to ensure all state is cleared
+            //window.location.reload();
+        } catch (error) {
+            console.error('Logout failed:', error);
+            //Still clear token and redirect even if API fails
+            
+            localStorage.removeItem('auth_token');
+            router.visit('/login');
+        }
+    };
 
     return (
         <nav className="bg-white shadow-sm">
@@ -41,7 +67,7 @@ const Navbar = ({ auth }) => {
                         </div>
                     </div>
                     <div className="hidden sm:ml-6 sm:flex sm:items-center">
-                        {user ? (
+                        {user && user.name? (
                             <div className="flex items-center space-x-4">
                                 <span className="text-sm font-medium text-gray-500">
                                     Welcome, {user.name}
@@ -50,6 +76,7 @@ const Navbar = ({ auth }) => {
                                     href="/logout"
                                     method="post"
                                     as="button"
+                                    onClick={handleLogout}
                                     className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
                                 >
                                     Sign out
@@ -121,7 +148,7 @@ const Navbar = ({ auth }) => {
             {/* Mobile menu, show/hide based on menu state. */}
             <div className="sm:hidden" id="mobile-menu">
                 <div className="pt-2 pb-3 space-y-1">
-                    {auth.user && (
+                    {user && (
                         <Link
                             href="/feedback"
                             className="bg-indigo-50 border-indigo-500 text-indigo-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
@@ -131,7 +158,7 @@ const Navbar = ({ auth }) => {
                     )}
                 </div>
                 <div className="pt-4 pb-3 border-t border-gray-200">
-                    {auth.user ? (
+                    {user ? (
                         <div className="flex items-center px-4">
                             <div className="flex-shrink-0">
                                 <svg
@@ -150,8 +177,8 @@ const Navbar = ({ auth }) => {
                                 </svg>
                             </div>
                             <div className="ml-3">
-                                <div className="text-base font-medium text-gray-800">{auth.user.name}</div>
-                                <div className="text-sm font-medium text-gray-500">{auth.user.email}</div>
+                                <div className="text-base font-medium text-gray-800">{user.name}</div>
+                                <div className="text-sm font-medium text-gray-500">{user.email}</div>
                             </div>
                         </div>
                     ) : (
@@ -170,7 +197,7 @@ const Navbar = ({ auth }) => {
                             </Link>
                         </div>
                     )}
-                    {auth.user && (
+                    {user && (
                         <div className="mt-3 space-y-1">
                             <Link
                                 href="/logout"

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link, Head } from '@inertiajs/react';
+import { Link, Head, router } from '@inertiajs/react';
 import api from '../../axios';
 import AppLayout from '../../layouts/AppLayout';
+import { useAuth } from '../context/auth';
+import ProtectedRoute from '../../components/protectedRoute';
 
 const Index = ({auth}) => {
     const [feedbacks, setFeedbacks] = useState([]);
@@ -12,7 +14,17 @@ const Index = ({auth}) => {
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [categories, setCategories] = useState([]);
 
+     const { user } = useAuth();
+
     useEffect(() => {
+
+        if ( !loading && !user) {
+            console.log(auth)
+            //console.log(user)
+            router.visit('/login');
+        }
+    
+
         const fetchData = async () => {
             try {
                 // Fetch categories
@@ -53,7 +65,7 @@ const Index = ({auth}) => {
     }
 
     return (
-
+       <ProtectedRoute>
         <AppLayout auth={auth}>
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
             <Head title="Product Feedback" />
@@ -241,6 +253,7 @@ const Index = ({auth}) => {
             </div>
         </div>
         </AppLayout>
+        </ProtectedRoute>
     );
 };
 

@@ -3,8 +3,12 @@ import { router } from '@inertiajs/react';
 import AppLayout from '@/Layouts/AppLayout';
 import api from '../../axios';
 import { Head } from '@inertiajs/react';
+import { useAuth } from '../context/auth';
 
 const Login = ({auth}) => {
+
+    const { setUser } = useAuth();
+
     const [formData, setFormData] = useState({
         email: '',
         password: ''
@@ -25,22 +29,25 @@ const Login = ({auth}) => {
         setErrors({});
         
         try {
-            // 1. First get CSRF cookie
+            // First get CSRF cookie
             await api.get('/sanctum/csrf-cookie');
 
             
             
-            // 2. Then make login request
+            // Then make login request
             const response = await api.post('/login', formData);
             
-            // 3. Store token and user data
+            // Store token and user data
             localStorage.setItem('auth_token', response.data.access_token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
             
-            // 4. Set default auth header
+            // Set default auth header
             api.defaults.headers.common['Authorization'] = `Bearer ${response.data.access_token}`;
             
-            // 5. Redirect
+            
+            setUser(response.data.user);
+
+            // Redirect
             router.visit(route('feedback.index'));
             //router.visit('/feedback');
             

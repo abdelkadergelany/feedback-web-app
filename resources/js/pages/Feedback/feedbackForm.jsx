@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import api from '../../axios';
 import { Head } from '@inertiajs/react';
+import AppLayout from '../../layouts/AppLayout';
+import ProtectedRoute from '../../components/protectedRoute';
 
 const FeedbackForm = () => {
     const [title, setTitle] = useState('');
@@ -52,6 +54,8 @@ const FeedbackForm = () => {
     };
 
     return (
+        <ProtectedRoute>
+            <AppLayout>
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
             <Head title="Submit Feedback" />
             
@@ -186,6 +190,8 @@ const FeedbackForm = () => {
                 </div>
             </div>
         </div>
+        </AppLayout>
+        </ProtectedRoute>
     );
 };
 

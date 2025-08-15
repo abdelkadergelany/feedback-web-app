@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Auth;
 // })->name('home');
 
 Route::get('/', function () {
-    if (Auth::check()) {
-        return redirect()->route('feedback.index');
-    }
+    // if (Auth::check()) {
+    //     return redirect()->route('feedback.index');
+    // }
     return Inertia::render('home');
 })->name('home');
 
