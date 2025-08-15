@@ -2,8 +2,16 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
+
+// Route::get('/', function () {
+//     return Inertia::render('home');
+// })->name('home');
 
 Route::get('/', function () {
+    if (Auth::check()) {
+        return redirect()->route('feedback.index');
+    }
     return Inertia::render('home');
 })->name('home');
 

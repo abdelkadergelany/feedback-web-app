@@ -1,8 +1,20 @@
 import React from 'react';
+import { useEffect } from 'react';
 import AppLayout from '../layouts/AppLayout';
 import { Head, Link } from "@inertiajs/react";
+import { router } from '@inertiajs/react';
+import { useAuth } from './context/auth';
 
 const Home = ({ auth }) => {
+
+    const { user, loading } = useAuth();
+
+    useEffect(() => {
+        if (user && user.name) {
+            router.visit('/feedback');
+        }
+    }, [user]);
+
     return (
         <AppLayout auth={auth}>
             <Head title="Welcome" />

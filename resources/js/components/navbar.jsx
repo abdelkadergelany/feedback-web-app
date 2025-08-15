@@ -1,7 +1,12 @@
 import React from 'react';
 import { Link } from '@inertiajs/react';
+import { useAuth } from '../pages/context/auth'
 
 const Navbar = ({ auth }) => {
+
+    const { user, loading } = useAuth();
+
+
     return (
         <nav className="bg-white shadow-sm">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -25,7 +30,7 @@ const Navbar = ({ auth }) => {
                             <span className="ml-2 text-xl font-semibold text-gray-900">FeedbackTool</span>
                         </div>
                         <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                            {auth.user && (
+                            {user && (
                                 <Link
                                     href="/feedback"
                                     className="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
@@ -36,10 +41,10 @@ const Navbar = ({ auth }) => {
                         </div>
                     </div>
                     <div className="hidden sm:ml-6 sm:flex sm:items-center">
-                        {auth.user ? (
+                        {user ? (
                             <div className="flex items-center space-x-4">
                                 <span className="text-sm font-medium text-gray-500">
-                                    Welcome, {auth.user.name}
+                                    Welcome, {user.name}
                                 </span>
                                 <Link
                                     href="/logout"

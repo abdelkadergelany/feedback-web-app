@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Head } from '@inertiajs/react';
 import api from '../../axios';
+import AppLayout from '../../layouts/AppLayout';
 
-const Index = () => {
+const Index = ({auth}) => {
     const [feedbacks, setFeedbacks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [pageCount, setPageCount] = useState(0);
@@ -52,6 +53,8 @@ const Index = () => {
     }
 
     return (
+
+        <AppLayout auth={auth}>
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
             <Head title="Product Feedback" />
             
@@ -237,6 +240,7 @@ const Index = () => {
                 )}
             </div>
         </div>
+        </AppLayout>
     );
 };
 

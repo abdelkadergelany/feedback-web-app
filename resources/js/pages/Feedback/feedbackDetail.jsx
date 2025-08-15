@@ -4,8 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { router } from '@inertiajs/react';
 import ReactMarkdown from 'react-markdown';
+import AppLayout from '../../layouts/AppLayout';
 
-const FeedbackDetail = ({ feedback: initialFeedback, id }) => {
+const FeedbackDetail = ({ feedback: initialFeedback, id,auth }) => {
     const [feedback, setFeedback] = useState(initialFeedback);
     const [loading, setLoading] = useState(!initialFeedback);
     const [error, setError] = useState(null);
@@ -20,7 +21,7 @@ const FeedbackDetail = ({ feedback: initialFeedback, id }) => {
             const fetchFeedback = async () => {
                 try {
                     const response = await api.get(`/feedbacks/${id}`);
-                  //  console.log('Fetched feedback:', response.data);
+                  
                     setFeedback(response.data);
                     setLoading(false);
                 } catch (error) {
@@ -77,6 +78,8 @@ const FeedbackDetail = ({ feedback: initialFeedback, id }) => {
 
     if (error) {
         return (
+
+            <AppLayout auth={auth}>
             <div className="max-w-7xl mx-auto px-4 py-8">
                 <div className="bg-red-50 border-l-4 border-red-500 p-4">
                     <div className="flex">
@@ -91,10 +94,13 @@ const FeedbackDetail = ({ feedback: initialFeedback, id }) => {
                     </div>
                 </div>
             </div>
+            </AppLayout>
         );
     }
 
     return (
+      <AppLayout auth={auth}>
+
         <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
             <Head title={feedback.title} />
 
@@ -277,6 +283,8 @@ const FeedbackDetail = ({ feedback: initialFeedback, id }) => {
 
             </div>
         </div>
+
+        </AppLayout>
     );
 };
 
