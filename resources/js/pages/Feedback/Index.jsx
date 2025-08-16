@@ -26,23 +26,27 @@ const Index = ({auth}) => {
     
 
         const fetchData = async () => {
-            try {
-                // Fetch categories
-                const categoriesResponse = await api.get('/categories');
-                setCategories(categoriesResponse.data);
+    try {
+        // Fetch categories
+        const categoriesResponse = await api.get('/categories');
+        setCategories(categoriesResponse.data);
 
-                // Fetch feedbacks
-                const feedbacksResponse = await api.get(
-                    `/feedbacks?page=${currentPage + 1}&search=${searchTerm}&category=${selectedCategory === 'all' ? '' : selectedCategory}`
-                );
-                setFeedbacks(feedbacksResponse.data.data);
-                setPageCount(feedbacksResponse.data.last_page);
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                setLoading(false);
-            }
-        };
+        // Build query parameters
+        const params = new URLSearchParams();
+        params.append('page', currentPage + 1);
+        if (searchTerm) params.append('search', searchTerm);
+        if (selectedCategory !== 'all') params.append('category', selectedCategory);
+
+        // Fetch feedbacks with filters
+        const feedbacksResponse = await api.get(`/feedbacks?${params.toString()}`);
+        setFeedbacks(feedbacksResponse.data.data);
+        setPageCount(feedbacksResponse.data.last_page);
+        setLoading(false);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+    }
+};
 
         fetchData();
     }, [currentPage, searchTerm, selectedCategory]);
@@ -90,50 +94,50 @@ const Index = ({auth}) => {
                 </div>
 
                 {/* Search and Filter */}
-                <div className="bg-white shadow rounded-lg p-4 mb-6">
-                    <form onSubmit={handleSearch} className="space-y-4 sm:space-y-0 sm:flex sm:space-x-4">
-                        <div className="flex-1">
-                            <label htmlFor="search" className="sr-only">Search</label>
-                            <div className="relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                                    </svg>
-                                </div>
-                                <input
-                                    type="text"
-                                    id="search"
-                                    className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2"
-                                    placeholder="Search feedback..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
-                        </div>
-                        <div className="sm:w-64">
-                            <label htmlFor="category" className="sr-only">Category</label>
-                            <select
-                                id="category"
-                                className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-                                value={selectedCategory}
-                                onChange={(e) => setSelectedCategory(e.target.value)}
-                            >
-                                <option value="all">All Categories</option>
-                                {categories.map(category => (
-                                    <option key={category.id} value={category.id}>
-                                        {category.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <button
-                            type="submit"
-                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        >
-                            Apply Filters
-                        </button>
-                    </form>
+               <div className="bg-white shadow rounded-lg p-4 mb-6">
+    <form onSubmit={handleSearch} className="space-y-4 sm:space-y-0 sm:flex sm:space-x-4">
+        <div className="flex-1">
+            <label htmlFor="search" className="sr-only">Search</label>
+            <div className="relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                    </svg>
                 </div>
+                <input
+                    type="text"
+                    id="search"
+                    className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2"
+                    placeholder="Search feedback..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+        </div>
+        <div className="sm:w-64">
+            <label htmlFor="category" className="sr-only">Category</label>
+            <select
+                id="category"
+                className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+                <option value="all">All Categories</option>
+                {categories.map(category => (
+                    <option key={category.id} value={category.id}>
+                        {category.name}
+                    </option>
+                ))}
+            </select>
+        </div>
+        <button
+            type="submit"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+            Apply Filters
+        </button>
+    </form>
+</div>
 
                 {/* Feedback List */}
                 <div className="bg-white shadow overflow-hidden sm:rounded-lg">

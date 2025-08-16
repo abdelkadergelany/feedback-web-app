@@ -12,7 +12,7 @@ export const AuthProvider = ({ children }) => {
             .then(res => setUser(res.data.user))
             .catch(() => setUser(null))
             .finally(() => setLoading(false));
-            console.log('User data fetched:', user);
+            
     }, []);
 
     return (
