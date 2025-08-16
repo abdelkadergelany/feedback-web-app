@@ -12,6 +12,8 @@ A web-based tool for submitting and managing product feedback, built with Larave
 
 ## Requirements
 
+- LARAVEL v12.22.1
+- VITE v7.0.6
 - PHP 8.0+
 - Composer
 - Node.js 14+
