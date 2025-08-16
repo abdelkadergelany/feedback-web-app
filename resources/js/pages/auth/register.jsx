@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Head, Link, router } from "@inertiajs/react";
-import AppLayout from '@/Layouts/AppLayout';
 import api from '../../axios';
+import AppLayout from '../../layouts/AppLayout';
 
 const Register = ({auth}) => {
     const [formData, setFormData] = useState({
