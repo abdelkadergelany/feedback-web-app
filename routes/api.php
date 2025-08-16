@@ -6,11 +6,18 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CategoryController;
+use App\Models\User;
 
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
+
+     Route::get('/users', function (Request $request) {
+        return User::where('id', '!=', $request->user()->id)
+            ->select('id', 'name', 'email')
+            ->get();
+    });
 
     Route::apiResource('feedbacks', FeedbackController::class)->only(['index', 'store', 'show']);
     Route::apiResource('feedbacks.comments', CommentController::class)->only(['store']);
