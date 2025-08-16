@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { router } from '@inertiajs/react';
-import AppLayout from '@/Layouts/AppLayout';
+import AppLayout from '../../layouts/AppLayout';
 import api from '../../axios';
 import { Head } from '@inertiajs/react';
 import { useAuth } from '../context/auth';
