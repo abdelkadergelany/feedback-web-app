@@ -22,7 +22,7 @@ A web-based tool for submitting and managing product feedback, built with Larave
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-repo/product-feedback-tool.git
+   git clone https://github.com/abdelkadergelany/feedback-web-app.git
    cd product-feedback-tool
    ```
 
