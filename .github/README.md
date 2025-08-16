@@ -2,6 +2,8 @@
 
 A web-based tool for submitting and managing product feedback, built with Laravel and React.
 
+Access the application at [https://feedback-web-app-production.up.railway.app]
+
 ## Features
 
 - User authentication (register, login, logout)
@@ -75,7 +77,7 @@ A web-based tool for submitting and managing product feedback, built with Larave
 
 ## Usage
 
-Access the application at [http://localhost:8000](http://localhost:8000)
+Access the application at [https://feedback-web-app-production.up.railway.app]
 
 Register a new account or login with:
 
