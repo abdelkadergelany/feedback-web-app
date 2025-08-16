@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Head, Link } from "@inertiajs/react";
-import Navbar from '../components/Navbar'; 
+import Navbar from '../components/navbar'; 
 
 
 const AppLayout = ({ children, auth, title }) => {
