@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, Link, router } from "@inertiajs/react";
 import api from '../../axios';
 import AppLayout from '../../layouts/AppLayout';
+import { useAuth } from '../context/auth';
 
 const Register = ({auth}) => {
     const [formData, setFormData] = useState({
@@ -13,6 +14,14 @@ const Register = ({auth}) => {
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
+    const { user, setUser } = useAuth();
+
+    useEffect(() => {
+            
+            if (user && user.name ) {
+                router.visit(route('feedback.index'));
+            }
+        }, [user]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;

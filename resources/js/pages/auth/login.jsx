@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { router } from '@inertiajs/react';
 import AppLayout from '../../layouts/AppLayout';
 import api from '../../axios';
@@ -7,7 +7,7 @@ import { useAuth } from '../context/auth';
 
 const Login = ({auth}) => {
 
-    const { setUser } = useAuth();
+    const { user, setUser } = useAuth();
 
     const [formData, setFormData] = useState({
         email: '',
@@ -22,6 +22,14 @@ const Login = ({auth}) => {
             [e.target.name]: e.target.value
         }));
     };
+
+    useEffect(() => {
+        
+        if (user && user.name ) {
+            router.visit(route('feedback.index'));
+        }
+    }, [user]);
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
